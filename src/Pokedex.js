@@ -2,13 +2,14 @@ import Channel from './common/Channel.js';
 import Config from './config.js';
 
 // Command classes
+import AutoIgnore from './commands/AutoIgnore.js';
 //import CAH from './commands/CardsAgainstHumanity.js';
 import Countdown from './commands/Countdown.js';
 import EightBall from './commands/EightBall.js';
 import Facts from './commands/Facts.js';
 import Jokes from './commands/Jokes.js';
 import Logger from './commands/Logger.js';
-import PingPong from './commands/PingPong.js';
+//import PingPong from './commands/PingPong.js';
 import PokedexCommand from './commands/PokedexCommand.js';
 import Rio2016 from './commands/Rio2016.js';
 import User from './commands/User.js';
@@ -28,12 +29,13 @@ export default class Pokedex {
 
         // Classes
         var classes = [
+        	AutoIgnore,
         	//CAH,
 	    	Countdown,
 	    	EightBall,
 	    	Jokes,
 	    	Logger,
-	    	PingPong,
+	    	//PingPong,
 	    	PokedexCommand,
 	    	Rio2016,
 	    	User,
@@ -120,9 +122,8 @@ export default class Pokedex {
 				// Make sure the user is not in the ignore list
 				if (ignoredata) {
 					ignoredata = JSON.parse(ignoredata);
-					for (var i in ignoredata) {
-						if (ignoredata[i] === from)
-							return;
+					if (ignoredata.hasOwnProperty(from)) {
+						return;
 					}
 				}
 
@@ -143,8 +144,6 @@ export default class Pokedex {
 							    client.action(to, msg.substr(4));
 							else
 					            client.say(to, msg);
-
-					    	Logger.catchAll(Config.irc.botname, to, msg);
 				    	});
 			 	    	break;
 			        }
@@ -153,7 +152,9 @@ export default class Pokedex {
 			    // Send the message to the catchalls
 			    for (var i in this.catchAlls) {
 			    	var ca = this.catchAlls[i];
-			    	ca.catchAll(from, to, message, raw);
+			    	ca.catchAll(from, to, message, raw, (msg) => {
+			    		client.say(from, msg);
+			    	});
 			    }
 
 			});
@@ -186,7 +187,7 @@ export default class Pokedex {
 						client.say(channel, message);
 					});
 				}
-			}, 3e5);
+			}, 6e4);
 		} (this.client, this.minuteInvokes));
 
 		// Connect to irc!

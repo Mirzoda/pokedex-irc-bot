@@ -171,14 +171,13 @@ export default class Facts {
 		    });
 		    fact = fact.replace(/%param(:(.*?))?%/g, function (a, b, def) {
 				if (matches.length > 3 && matches[3] !== undefined)
-				    return matches[3];
+				    return matches[3].trim();
 				else
 				    return def;
 		    });
 		    fact = fact.replace(/%dice:(\d+):(\d+)%/g, function (all, min, max) {
-
 				return Math.floor(Math.random() * (Number(max) - Number(min) + 1)) + Number(min);
-});
+			});
 
 		    // Send the value back
 	        callBack(fact);
@@ -207,7 +206,7 @@ export default class Facts {
 		var fcs = this.factsCacheSlug;
 		fs.readFile(__dirname + '/../data/facts.json', function(err, data) {
 		    if (err) return;
-		    Cache.instance.put(fcs, -1, data);
+		    Cache.instance.put(fcs, -1, data.toString());
 		});
 
     }
