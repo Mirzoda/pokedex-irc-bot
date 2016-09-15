@@ -95,6 +95,7 @@ export default class Pokedex {
 
 		// Create an event for incomming messages
 		var commands = this.commands;
+		var modules = this.modules;
 		let msgevent = (from, to, message, raw) => {
 
 			fs.readFile(__dirname + '/data/ignore.json', (err, ignoredata) => {
@@ -120,7 +121,7 @@ export default class Pokedex {
 			    for (var i in commands) {
 		   	        var regex = i;
 	                if (message.match(new RegExp(regex))) {
-					    this.modules[commands[i]].doCommand(message, from, to, (msg) => {
+					    modules[commands[i]].doCommand(message, from, to, (msg) => {
 							if (msg.indexOf("/me ") === 0)
 							    client.action(to, msg.substr(4));
 							else
@@ -131,7 +132,7 @@ export default class Pokedex {
 			    }
 
 			    // Send the message to the catchalls
-			    _.each(this.catchAlls, (mod) => {
+			    _.each(Pokedex.catchAlls, (mod) => {
 			    	if (Config.irc.isChannelModule(to, mod)) {
 				    	var ca = Pokedex.modules[mod];
 				    	ca.catchAll(from, to, message, raw, (msg) => {
@@ -148,7 +149,7 @@ export default class Pokedex {
 			msgevent(from, to, "/me " + message, raw);
 		});
 		this.client.addListener('kick', (channel, nick, by, reason, message) => {
-		    _.each(this.doKicks, (mod) => {
+		    _.each(Pokedex.doKicks, (mod) => {
 		    	if (Config.irc.isChannelModule(channel, mod)) {
 			    	var dk = Pokedex.modules[mod];
 			    	dk.doKick(channel, nick, by, reason, message);
@@ -157,7 +158,7 @@ export default class Pokedex {
 		});
 		this.client.addListener('message', msgevent);
 		this.client.addListener('topic', (channel, topic, nick, raw) => {
-			_.each(this.doTopics, (mod) => {
+			_.each(Pokedex.doTopics, (mod) => {
 		    	if (Config.irc.isChannelModule(channel, mod)) {
 			    	var dt = Pokedex.modules[mod];
 		    		dt.doTopic(channel, topic, nick, raw);
@@ -166,18 +167,18 @@ export default class Pokedex {
 		});
 
 		// Set the minuteInvokes (every five minutes)
-		(function (client, minuteInvokes) {
+		(function (client, minuteInvokes, modules) {
 			setInterval(() => {
 				_.each(minuteInvokes, (mod) => {
 			    	if (Config.irc.isChannelModule(channel, mod)) {
-				    	var mi = Pokedex.modules[mod];
+				    	var mi = modules[mod];
 			    		mi.minuteInvoke((channel, message) => {
 							client.say(channel, message);
 						});
 			    	}
 			    });
 			}, 6e4);
-		} (this.client, this.minuteInvokes));
+		} (this.client, this.minuteInvokes, this.modules));
 
 		// Connect to irc!
 		this.client.connect();

@@ -6,6 +6,9 @@ export default {
 			"#pokedextest": {
 				"admins": ["Nuva"],
 				"modules": [
+					"Logger",
+					"AutoIgnore",
+					"EightBall",
 					"Facts"
 				]
 			}

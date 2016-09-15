@@ -6,10 +6,10 @@ import Log from './common/Log.js';
     "use strict";
 
     // Verry safe crash handling ;)
-    // process.on('uncaughtException', function (err) {
-    //     Log.log("[!Pokedex!] Error: ");
-    //     Log.log(err);
-    // });
+    process.on('uncaughtException', function (err) {
+        Log.log("[!Pokedex!] Error: ");
+        Log.log(err);
+    });
 
     // Start the pokedex bot!
     let pokedex = new Pokedex();
