@@ -113,7 +113,7 @@ export default class Facts {
 				    	0
 				    ];
 		    	}
-		    } else if (matches[2] === "[del]" && Config.irc.admins.indexOf(from) > -1) {
+		    } else if (matches[2] === "[del]" && Config.irc.isAdmin(to, from)) {
 		    	if (facts.hasOwnProperty(matches[1]) && typeof (facts[matches[1]][1]) === "object") {
 		    		this.log(from + " removed all replies for !" + matches[1]);
 				    delete facts[matches[1]];

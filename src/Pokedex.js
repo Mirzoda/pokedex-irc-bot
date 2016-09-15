@@ -1,21 +1,8 @@
 import Channel from './common/Channel.js';
 import Config from './config.js';
 
-// Command classes
-import AutoIgnore from './commands/AutoIgnore.js';
-//import CAH from './commands/CardsAgainstHumanity.js';
-import Countdown from './commands/Countdown.js';
-import EightBall from './commands/EightBall.js';
-import Facts from './commands/Facts.js';
-import Jokes from './commands/Jokes.js';
-import Logger from './commands/Logger.js';
-//import PingPong from './commands/PingPong.js';
-import PokedexCommand from './commands/PokedexCommand.js';
-import Rio2016 from './commands/Rio2016.js';
-import User from './commands/User.js';
-import Wiki from './commands/Wiki.js';
-
 // Libraries
+const _ = require('underscore');
 const fs = require('fs');
 const irc = require('irc');
 
@@ -24,24 +11,18 @@ export default class Pokedex {
 	catchAlls = [];
     client = null;
     commands = {};
+    modules = {};
 
     constructor () {
 
-        // Classes
-        var classes = [
-        	AutoIgnore,
-        	//CAH,
-	    	Countdown,
-	    	EightBall,
-	    	Jokes,
-	    	Logger,
-	    	//PingPong,
-	    	PokedexCommand,
-	    	Rio2016,
-	    	User,
-            Wiki,
-	    	Facts
-        ];
+		// Load required modules dynamicaly
+		for (var ch in Config.irc.channels) {
+			var channel = Config.irc.channels[ch];
+			for (var m in channel.modules) {
+				var mod = channel.modules[m];
+					this.modules[mod] = require("./commands/" + mod + ".js")["default"];
+			}
+		}
 
         // Load a list of Commands
 		this.commands = {};
@@ -49,8 +30,8 @@ export default class Pokedex {
 		this.doKicks = [];
 		this.doTopics = [];
 		this.minuteInvokes = [];
-        for (var i in classes) {
-            var c = classes[i];
+        for (var i in this.modules) {
+            var c = this.modules[i];
 
 			// Execute init functions
 		    if (c.init)
@@ -58,24 +39,24 @@ export default class Pokedex {
 
 			// Add catchalls
 		    if (c.catchAll)
-		    	this.catchAlls.push(c);
+		    	this.catchAlls.push(i);
 
 			// Add kick catches
 			if (c.doKick)
-				this.doKicks.push(c);
+				this.doKicks.push(i);
 
 		    // Add topic catches
 		    if (c.doTopic)
-		    	this.doTopics.push(c);
+		    	this.doTopics.push(i);
 
 		    // Add invokes for every minute
 		    if (c.minuteInvoke)
-				this.minuteInvokes.push(c);
+				this.minuteInvokes.push(i);
 
 			// Add commands to the list
 			if (c.getCommands) {
 	            for (var j in c.getCommands()) {
-	                this.commands[c.getCommands()[j]] = c;
+	                this.commands[c.getCommands()[j]] = i;
 	            }
 			}
         }
@@ -86,7 +67,7 @@ export default class Pokedex {
 
 		// Create irc connection
 		this.client = new irc.Client(Config.irc.server, Config.irc.botname, {
-    	    channels: Config.irc.channels,
+    	    channels: _.keys(Config.irc.channels),
 	    	autoConnect: false,
 	    	autoRejoin: true,
 	    	retryCount: 10
@@ -97,8 +78,8 @@ export default class Pokedex {
 
 		// Keep track of the users in the channels
 		this.users = {};
-		for (var i in Config.irc.channels) {
-		    var channel = Config.irc.channels[i];
+		for (var i in _.keys(Config.irc.channels)) {
+		    var channel = _.keys(Config.irc.channels)[i];
 		    var client = this.client;
 		    (function (channel, client) {
 				client.addListener('names' + channel, (nicks) => {
@@ -128,7 +109,7 @@ export default class Pokedex {
 				}
 
 			    // Only read messages from channels or admins
-			    if (Config.irc.channels.indexOf(to) === -1 && Config.irc.admins.indexOf(from) === -1)
+			    if (_.keys(Config.irc.channels).indexOf(to) === -1 && Config.irc.isAdmin(to, from))
 					return;
 
 			    // Don't reply to your own messages! moron!
@@ -139,7 +120,7 @@ export default class Pokedex {
 			    for (var i in commands) {
 		   	        var regex = i;
 	                if (message.match(new RegExp(regex))) {
-					    commands[regex].doCommand(message, from, to, (msg) => {
+					    this.modules[commands[i]].doCommand(message, from, to, (msg) => {
 							if (msg.indexOf("/me ") === 0)
 							    client.action(to, msg.substr(4));
 							else
@@ -150,12 +131,14 @@ export default class Pokedex {
 			    }
 
 			    // Send the message to the catchalls
-			    for (var i in this.catchAlls) {
-			    	var ca = this.catchAlls[i];
-			    	ca.catchAll(from, to, message, raw, (msg) => {
-			    		client.say(from, msg);
-			    	});
-			    }
+			    _.each(this.catchAlls, (mod) => {
+			    	if (Config.irc.isChannelModule(to, mod)) {
+				    	var ca = Pokedex.modules[mod];
+				    	ca.catchAll(from, to, message, raw, (msg) => {
+				    		client.say(from, msg);
+				    	});
+			    	}
+			    });
 
 			});
 
@@ -165,28 +148,34 @@ export default class Pokedex {
 			msgevent(from, to, "/me " + message, raw);
 		});
 		this.client.addListener('kick', (channel, nick, by, reason, message) => {
-			for (var i in this.doKicks) {
-		    	var dk = this.doKicks[i];
-		    	dk.doKick(channel, nick, by, reason, message);
-		    }
+		    _.each(this.doKicks, (mod) => {
+		    	if (Config.irc.isChannelModule(channel, mod)) {
+			    	var dk = Pokedex.modules[mod];
+			    	dk.doKick(channel, nick, by, reason, message);
+		    	}
+		    });
 		});
 		this.client.addListener('message', msgevent);
 		this.client.addListener('topic', (channel, topic, nick, raw) => {
-			for (var i in this.doTopics) {
-		    	var dt = this.doTopics[i];
-		    	dt.doTopic(channel, topic, nick, raw);
-		    }
+			_.each(this.doTopics, (mod) => {
+		    	if (Config.irc.isChannelModule(channel, mod)) {
+			    	var dt = Pokedex.modules[mod];
+		    		dt.doTopic(channel, topic, nick, raw);
+		    	}
+		    });
 		});
 
 		// Set the minuteInvokes (every five minutes)
 		(function (client, minuteInvokes) {
 			setInterval(() => {
-				for (var i in minuteInvokes) {
-					var mi = minuteInvokes[i];
-					mi.minuteInvoke((channel, message) => {
-						client.say(channel, message);
-					});
-				}
+				_.each(minuteInvokes, (mod) => {
+			    	if (Config.irc.isChannelModule(channel, mod)) {
+				    	var mi = Pokedex.modules[mod];
+			    		mi.minuteInvoke((channel, message) => {
+							client.say(channel, message);
+						});
+			    	}
+			    });
 			}, 6e4);
 		} (this.client, this.minuteInvokes));
 
