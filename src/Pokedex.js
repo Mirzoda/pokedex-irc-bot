@@ -135,7 +135,8 @@ export default class Pokedex {
 					    		},
 					    		(msg) => {
 					    			client.say(from, msg);
-					    		}
+					    		},
+					    		raw
 				    		);
 				 	    	break;
 				        }
