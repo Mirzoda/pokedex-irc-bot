@@ -94,88 +94,101 @@ export default class Pokedex {
 		}
 
 		// Create an event for incomming messages
-		var commands = this.commands;
-		var modules = this.modules;
-		let msgevent = (from, to, message, raw) => {
+		(function(catchalls, client, commands, doTopics, doKicks, modules) {
 
-			fs.readFile(__dirname + '/data/ignore.json', (err, ignoredata) => {
-				if (err) {}
+			let msgevent = (from, to, message, raw) => {
 
-				// Make sure the user is not in the ignore list
-				if (ignoredata) {
-					ignoredata = JSON.parse(ignoredata);
-					if (ignoredata.hasOwnProperty(from)) {
-						return;
+				fs.readFile(__dirname + '/data/ignore.json', (err, ignoredata) => {
+					if (err) {}
+
+					// Make sure the user is not in the ignore list
+					if (ignoredata) {
+						ignoredata = JSON.parse(ignoredata);
+						if (ignoredata.hasOwnProperty(from)) {
+							return;
+						}
 					}
-				}
 
-			    // Only read messages from channels or admins
-			    if (_.keys(Config.irc.channels).indexOf(to) === -1 && Config.irc.isAdmin(to, from))
-					return;
+				    // Only read messages from channels or admins
+				    if (_.keys(Config.irc.channels).indexOf(to) === -1 && Config.irc.isAdmin(to, from))
+						return;
 
-			    // Don't reply to your own messages! moron!
-			    if (Config.irc.botname === from)
-					return;
+				    // Don't reply to your own messages! moron!
+				    if (Config.irc.botname === from)
+						return;
 
-			    // Loop over commands to match one of them
-			    for (var i in commands) {
-		   	        var regex = i;
-	                if (message.match(new RegExp(regex))) {
-					    modules[commands[i]].doCommand(message, from, to, (msg) => {
-							if (msg.indexOf("/me ") === 0)
-							    client.action(to, msg.substr(4));
-							else
-					            client.say(to, msg);
-				    	});
-			 	    	break;
-			        }
-			    }
+				    // Loop over commands to match one of them
+				    for (var i in commands) {
+			   	        var regex = i;
+		                if (message.match(new RegExp(regex))) {
+						    modules[commands[i]].doCommand(message, from, to,
+						    	(msg) => {
 
-			    // Send the message to the catchalls
-			    _.each(Pokedex.catchAlls, (mod) => {
-			    	if (Config.irc.isChannelModule(to, mod)) {
-				    	var ca = Pokedex.modules[mod];
-				    	ca.catchAll(from, to, message, raw, (msg) => {
-				    		client.say(from, msg);
-				    	});
+						    		// Viveslan 28 Oliental!
+						    		msg = msg.replace(/r/g, 'l');
+						    		msg = msg.replace(/R/g, 'L');
+
+									if (msg.indexOf("/me ") === 0)
+									    client.action(to, msg.substr(4));
+									else
+							            client.say(to, msg);
+					    		},
+					    		(msg) => {
+					    			client.say(from, msg);
+					    		}
+				    		);
+				 	    	break;
+				        }
+				    }
+
+				    // Send the message to the catchalls
+				    _.each(catchalls, (mod) => {
+				    	if (Config.irc.isChannelModule(to, mod)) {
+					    	var ca = modules[mod];
+					    	ca.catchAll(from, to, message, raw, (msg) => {
+					    		client.say(from, msg);
+					    	}, (msg) => {
+					    		client.say(to, msg);
+					    	});
+				    	}
+				    });
+
+				});
+
+	        };
+
+	        client.addListener('action', (from, to, message, raw) => {
+				msgevent(from, to, "/me " + message, raw);
+			});
+			client.addListener('kick', (channel, nick, by, reason, message) => {
+			    _.each(doKicks, (mod) => {
+			    	if (Config.irc.isChannelModule(channel, mod)) {
+				    	var dk = modules[mod];
+				    	dk.doKick(channel, nick, by, reason, message);
 			    	}
 			    });
-
+			});
+			client.addListener('message', msgevent);
+			client.addListener('topic', (channel, topic, nick, raw) => {
+				_.each(doTopics, (mod) => {
+			    	if (Config.irc.isChannelModule(channel, mod)) {
+				    	var dt = modules[mod];
+			    		dt.doTopic(channel, topic, nick, raw);
+			    	}
+			    });
 			});
 
-        };
+		} (this.catchAlls, this.client, this.commands, this.doTopics, this.doKicks, this.modules));
 
-        this.client.addListener('action', (from, to, message, raw) => {
-			msgevent(from, to, "/me " + message, raw);
-		});
-		this.client.addListener('kick', (channel, nick, by, reason, message) => {
-		    _.each(Pokedex.doKicks, (mod) => {
-		    	if (Config.irc.isChannelModule(channel, mod)) {
-			    	var dk = Pokedex.modules[mod];
-			    	dk.doKick(channel, nick, by, reason, message);
-		    	}
-		    });
-		});
-		this.client.addListener('message', msgevent);
-		this.client.addListener('topic', (channel, topic, nick, raw) => {
-			_.each(Pokedex.doTopics, (mod) => {
-		    	if (Config.irc.isChannelModule(channel, mod)) {
-			    	var dt = Pokedex.modules[mod];
-		    		dt.doTopic(channel, topic, nick, raw);
-		    	}
-		    });
-		});
 
 		// Set the minuteInvokes (every five minutes)
 		(function (client, minuteInvokes, modules) {
 			setInterval(() => {
 				_.each(minuteInvokes, (mod) => {
-			    	if (Config.irc.isChannelModule(channel, mod)) {
-				    	var mi = modules[mod];
-			    		mi.minuteInvoke((channel, message) => {
-							client.say(channel, message);
-						});
-			    	}
+			    	var mi = modules[mod];
+		    		mi.minuteInvoke((channel, message) => {
+						client.say(channel, message);
+					});
 			    });
 			}, 6e4);
 		} (this.client, this.minuteInvokes, this.modules));

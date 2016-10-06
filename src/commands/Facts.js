@@ -13,7 +13,7 @@ import Log from '../common/Log.js';
  */
 export default class Facts {
 
-    static doCommand(command, from, to, callBack) {
+    static doCommand(command, from, to, callBack, pmCallback) {
 		if (typeof callBack !== "function")
 		    callBack = (msg) => {};
 
@@ -53,7 +53,21 @@ export default class Facts {
 				// Create new string with facts
 				var fstring = "";
 				for (fact in facts) {
-					fstring += fact + ":" + new Array(30 - fact.length).join(" ") + facts[fact][1] + "\r\n";
+					var responses = [facts[fact][1]];
+					if (typeof facts[fact][1] === "object") {
+						responses = [];
+						var r = facts[fact][1];
+						for (var i in r) {
+							var resp = "";
+
+							if (i > 0)
+								resp += new Array(31).join(" ");
+
+							responses.push(resp + r[i]);
+						}
+					}
+
+					fstring += fact + ":" + new Array(30 - fact.length).join(" ") + responses.join("\r\n") + "\r\n";
 				}
 
 				pastebin.createPaste({
@@ -91,13 +105,19 @@ export default class Facts {
 		}
 		else if ((matches = command.match(new RegExp("^" + Config.irc.botname + ": !([\\w\\d-]+)(\\[(del)?\\])?( ([\\w\\d\\s\\/\\-\\%].*?))?$"))) && matches !== null)
 		{
-          		if (!matches[5] || matches[5].lengh === 0) {
+      		if (!matches[5] || matches[5].lengh === 0) {
 				return;
 			}
 
 			if ((matches[5].match(/%randomuser%/ig) || []).length > 2) {
 				callBack(from + ": Stop annoying users!");
 				return;
+			}
+
+			var locked = false;
+			if (matches[5].match(/ --lock$/) && Config.irc.isAdmin(to, from)) {
+				matches[5] = matches[5].replace(/ --lock$/, '');
+				locked = true;
 			}
 
 		    // Create the fact in the list
@@ -123,11 +143,16 @@ export default class Facts {
 		    	if (facts.hasOwnProperty(matches[1]) && typeof (facts[matches[1]][1]) === "object") {
 					callBack(matches[1] + " is an array, use !" + matches[1] + "[] to add a value.");
 		    	} else {
+		    		if (facts.hasOwnProperty(matches[1]) && facts[matches[1]].length > 3 && facts[matches[1]][3] === true && !Config.irc.isAdmin(to, from)) {
+						pmCallback(matches[1] + " is locked, only an admin can edit this!");
+						return;
+		    		}
 		    		this.log(from + " created !" + matches[1] + ": " + matches[5]);
 			    	facts[matches[1]] = [
 					    from,
 					    matches[5],
-				   	    0
+				   	    0,
+				   	    locked
 			    	];
 		    	}
 		    }
