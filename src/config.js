@@ -6,13 +6,16 @@ export default {
 			"#pokedextest": {
 				"admins": ["Nuva"],
 				"modules": [
+					"Trivia",
 					"Logger",
 					"AutoIgnore",
 					"EightBall",
-					"Facts"
+					"PingPong",
+					"FactsDB"
 				]
 			}
 		},
+		"globaladmins": ["Nuva"],
 		"server": "portlane.se.quakenet.org",
 
 		isAdmin: function (channel, username) {
