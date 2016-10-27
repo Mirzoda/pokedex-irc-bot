@@ -70,7 +70,8 @@ export default class Pokedex {
     	    channels: _.keys(Config.irc.channels),
 	    	autoConnect: false,
 	    	autoRejoin: true,
-	    	retryCount: 10
+	    	retryCount: 10,
+	    	userName: Config.irc.botname
         });
 
 		// Prevent message flooding
@@ -122,7 +123,8 @@ export default class Pokedex {
 			   	        var regex = i;
 		                if (message.match(new RegExp(regex))) {
 						    modules[commands[i]].doCommand(message, from, to,
-						    	(msg) => {
+						    	(msg, customTo) => {
+									to = typeof customTo !== 'undefined' ? customTo : to;
 
 						    		// Viveslan 28 Oliental!
 						    		msg = msg.replace(/r/g, 'l');

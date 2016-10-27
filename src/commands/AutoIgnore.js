@@ -24,11 +24,11 @@ export default class AutoIgnore {
 
         // Remove messages older than 10s
         for (var i in user) {
-            if (user[i] < now - 10)
+            if (user[i] < now - 15)
                 delete user[i];
         }
 
-        // If more than 5 messages, ignore the user for 5 minutes
+        // If more than 5 messages in the last 20 seconds, ignore the user for 5 minutes
         if (user.length > 5) {
             fs.readFile(file, (err, data) => {
                 if (err) {

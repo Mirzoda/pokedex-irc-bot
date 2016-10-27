@@ -6,7 +6,7 @@ var expect = require('expect.js');
 var Cache = require("../../dist/common/Cache.js")["default"];
 
 
-describe('Common/Cache.js', function () {
+describe('Common/Cache', function () {
 
     it('should remember an item forever', function () {
         var time = new Date().getTime();

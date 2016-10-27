@@ -104,7 +104,7 @@ export default class FactsDB {
 				callBack("I learned !" + key + " from " + users + ".");
 			});
 		}
-		else if ((matches = command.match(new RegExp("^" + Config.irc.botname + ": !([\\w\\d-]+)(\\[(del)?\\])?( ([\\w\\d\\s\\/\\-\\%].*?))?$"))) && matches !== null)
+		else if ((matches = command.match(new RegExp("^" + Config.irc.botname + ": !([\\w\\d-]+)(\\[(del)?\\])?( (.{2,}))?$"))) && matches !== null)
 		{
       		if (!matches[5] || matches[5].lengh === 0) {
 				return;

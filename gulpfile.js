@@ -16,7 +16,7 @@ gulp.task("build-js", function () {
 
 gulp.task("move-data", function () {
 
-    return gulp.src("src/data/*")
+    return gulp.src("src/data/**/*")
         .pipe(newer("dist/data"))
         .pipe(gulp.dest("dist/data"));
 
