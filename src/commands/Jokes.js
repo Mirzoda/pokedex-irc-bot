@@ -50,6 +50,9 @@ export default class Jokes {
                 sources.push(this.getChristmasCrackerJoke);
                 sources.push(this.getRDChristmasJoke);
             }
+            if (now.getMonth() == 3 && now.getDate() < 10) {
+                sources.push(this.getJokes4usEaster);
+            }
 
             // Load a joke
             _.sample(sources)(callBack);
@@ -79,8 +82,24 @@ export default class Jokes {
 
 
     /**
-     *  Get a joke from onelinefun
+     *  Joke sources
      */
+    static getChristmasCrackerJoke(callBack) {
+
+        // First, get the page source
+        request("http://www.whychristmas.com/fun/cracker_jokes.shtml", function (error, response, html) {
+
+            // Find the jokes and load a random one
+            let $ = cheerio.load(html);
+            let jokes = $("#content p");
+            let joke = jokes.eq(Math.floor(Math.random() * jokes.length - 3) + 3).text();
+
+            // Send it back
+            callBack(joke);
+        });
+
+    }
+
     static getJokeOnelinefun(callBack) {
 
         // First, find the number of pages
@@ -96,9 +115,9 @@ export default class Jokes {
             request("http://onelinefun.com/" + Math.ceil(Math.random() * pnr) + "/", function (error, response, html) {
 
                 // Find the jokes and load a random one
-                var $ = cheerio.load(html);
-                var jokes = $(".oneliner p");
-                var joke = jokes.eq(Math.floor(Math.random() * jokes.length)).text();
+                let $ = cheerio.load(html);
+                let jokes = $(".oneliner p");
+                let joke = jokes.eq(Math.floor(Math.random() * jokes.length)).text();
 
                 // Send it back
                 callBack(joke);
@@ -110,33 +129,25 @@ export default class Jokes {
 
     }
 
+    static getJokes4usEaster(callBack) {
 
-    /**
-     *  Get a joke from Christmas Cracker Jokes
-     */
-    static getChristmasCrackerJoke(callBack) {
-
-        // First, find the number of pages
-        request("http://www.whychristmas.com/fun/cracker_jokes.shtml", function (error, response, html) {
+        // First, get the page source
+        request("http://www.jokes4us.com/holidayjokes/easterjokes/easteronelinersjokes.html", function (error, response, html) {
 
             // Find the jokes and load a random one
-            var $ = cheerio.load(html);
-            var jokes = $("#content p");
-            var joke = jokes.eq(Math.floor(Math.random() * jokes.length - 3) + 3).text();
+            let $ = cheerio.load(html);
+            let strJokes = $(".SocialShare + p + p").html().replace(/\r?\n|\r/g, "");
+            let jokes = strJokes.split(/(<br\s?\/?>){2}/);
 
             // Send it back
-            callBack(joke);
+            callBack(_.sample(jokes).replace("<br>", "\n"));
         });
 
     }
 
-
-    /**
-     *  Get a joke from RD
-     */
     static getRDChristmasJoke(callBack) {
 
-        // First, find the number of pages
+        // First, get the page source
         request("http://www.rd.com/jokes/christmas-jokes/", function (error, response, html) {
 
             // Find the jokes and load a random one
