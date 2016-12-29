@@ -40,16 +40,17 @@ export default class Jokes {
 
         // Get a joke from a random website
         if (credits[from].credits > 0) {
-            switch (Math.ceil(Math.random() * 1)) {
-                case 1:
+        // Commented Christmas Jokes, To be used when almost Christmas again. (Like around 1 December)
+        //    switch (Math.ceil(Math.random() * 1)) {
+        //        case 1:
                     this.getJokeOnelinefun(callBack);
-                    break;		
-                case 2:
-                    this.getChristmasCrackerJoke(callBack);
-                    break;
-                case 3:
-                    this.getRDChristmasJoke(callBack);
-                    break;
+        //            break;		
+        //        case 2:
+        //            this.getChristmasCrackerJoke(callBack);
+        //            break;
+        //        case 3:
+        //            this.getRDChristmasJoke(callBack);
+        //            break;
             }
         }
     }
@@ -112,6 +113,7 @@ export default class Jokes {
     /**
      *  Get a joke from Christmas Cracker Jokes
      */
+/*
     static getChristmasCrackerJoke(callBack) {
 
         // First, find the number of pages
@@ -127,11 +129,12 @@ export default class Jokes {
         });
 
     }
-
+*/
 
     /**
      *  Get a joke from RD
      */
+/*
     static getRDChristmasJoke(callBack) {
 
         // First, find the number of pages
@@ -145,6 +148,6 @@ export default class Jokes {
             // Send it back
             callBack(joke);
         });
-
+*/
     }
 }
