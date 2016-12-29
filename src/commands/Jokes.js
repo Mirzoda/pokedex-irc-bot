@@ -40,17 +40,19 @@ export default class Jokes {
 
         // Get a joke from a random website
         if (credits[from].credits > 0) {
-            switch (Math.ceil(Math.random() * 1)) {
-                case 1:
-                    this.getJokeOnelinefun(callBack);
-                    break;		
-                case 2:
-                    this.getChristmasCrackerJoke(callBack);
-                    break;
-                case 3:
-                    this.getRDChristmasJoke(callBack);
-                    break;
+            let now = new Date();
+
+            // Fill an array with sources of jokes
+            let sources = [
+                this.getJokeOnelinefun
+            ];
+            if (now.getMonth() == 11 && (now.getDate() > 6 && now.getDate() < 30)) {
+                sources.push(this.getChristmasCrackerJoke);
+                sources.push(this.getRDChristmasJoke);
             }
+
+            // Load a joke
+            _.sample(sources)(callBack);
         }
     }
 
