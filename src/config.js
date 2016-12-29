@@ -6,7 +6,8 @@ export default {
 			"#pokedextest": {
 				"admins": ["Nuva"],
 				"modules": [
-					"Trivia",
+					"Vote",
+					"Jokes",
 					"Logger",
 					"AutoIgnore",
 					"EightBall",

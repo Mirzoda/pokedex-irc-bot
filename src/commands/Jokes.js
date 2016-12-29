@@ -1,3 +1,4 @@
+const _ = require('underscore');
 const cheerio = require("cheerio");
 const request = require("request");
 
@@ -7,7 +8,7 @@ import Cache from '../common/Cache.js';
 /**
  * Display a random joke
  */
-export default class Users {
+export default class Jokes {
 
     static doCommand(command, from, to, callBack) {
         if (typeof callBack !== "function")
@@ -39,9 +40,15 @@ export default class Users {
 
         // Get a joke from a random website
         if (credits[from].credits > 0) {
-            switch (Math.ceil(Math.random() * 1)) {
+            switch (Math.ceil(Math.random() * 3)) {
                 case 1:
                     this.getJokeOnelinefun(callBack);
+                    break;
+                case 2:
+                    this.getChristmasCrackerJoke(callBack);
+                    break;
+                case 3:
+                    this.getRDChristmasJoke(callBack);
                     break;
             }
         }
@@ -97,6 +104,46 @@ export default class Users {
             });
 
 
+        });
+
+    }
+
+
+    /**
+     *  Get a joke from Christmas Cracker Jokes
+     */
+    static getChristmasCrackerJoke(callBack) {
+
+        // First, find the number of pages
+        request("http://www.whychristmas.com/fun/cracker_jokes.shtml", function (error, response, html) {
+
+            // Find the jokes and load a random one
+            var $ = cheerio.load(html);
+            var jokes = $("#content p");
+            var joke = jokes.eq(Math.floor(Math.random() * jokes.length - 3) + 3).text();
+
+            // Send it back
+            callBack(joke);
+        });
+
+    }
+
+
+    /**
+     *  Get a joke from RD
+     */
+    static getRDChristmasJoke(callBack) {
+
+        // First, find the number of pages
+        request("http://www.rd.com/jokes/christmas-jokes/", function (error, response, html) {
+
+            // Find the jokes and load a random one
+            var $ = cheerio.load(html);
+            var jokes = $(".jokes-river--content");
+            var joke = jokes.eq(Math.floor(Math.random() * jokes.length)).text();
+
+            // Send it back
+            callBack(joke);
         });
 
     }

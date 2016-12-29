@@ -127,8 +127,8 @@ export default class Pokedex {
 									to = typeof customTo !== 'undefined' ? customTo : to;
 
 						    		// Viveslan 28 Oliental!
-						    		msg = msg.replace(/r/g, 'l');
-						    		msg = msg.replace(/R/g, 'L');
+						    		//msg = msg.replace(/r/g, 'l');
+						    		//msg = msg.replace(/R/g, 'L');
 
 									if (msg.indexOf("/me ") === 0)
 									    client.action(to, msg.substr(4));
@@ -184,7 +184,7 @@ export default class Pokedex {
 		} (this.catchAlls, this.client, this.commands, this.doTopics, this.doKicks, this.modules));
 
 
-		// Set the minuteInvokes (every five minutes)
+		// Set the minuteInvokes (every minute)
 		(function (client, minuteInvokes, modules) {
 			setInterval(() => {
 				_.each(minuteInvokes, (mod) => {
