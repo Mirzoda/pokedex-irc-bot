@@ -40,10 +40,10 @@ export default class Jokes {
 
         // Get a joke from a random website
         if (credits[from].credits > 0) {
-            switch (Math.ceil(Math.random() * 3)) {
+            switch (Math.ceil(Math.random() * 1)) {
                 case 1:
                     this.getJokeOnelinefun(callBack);
-                    break;
+                    break;		
                 case 2:
                     this.getChristmasCrackerJoke(callBack);
                     break;
