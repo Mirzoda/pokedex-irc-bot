@@ -43,7 +43,7 @@ export default class Jokes {
             let now = new Date();
 
             // Fill an array with sources of jokes
-            let sources = [
+            var sources = [
                 this.getJokeOnelinefun
             ];
             if (now.getMonth() == 11 && (now.getDate() > 6 && now.getDate() < 30)) {
