@@ -1,21 +1,21 @@
 /* global describe, it */
 
-var expect = require('expect.js');
+const expect = require("expect.js");
 
 // Load a cache instance
 var Cache = require("../../dist/common/Cache.js")["default"];
 
 
-describe('Common/Cache', function () {
+describe("Common/Cache", function () {
 
-    it('should remember an item forever', function () {
+    it("should remember an item forever", function () {
         var time = new Date().getTime();
 
-        Cache.instance.rememberForever('time', function () {
+        Cache.instance.rememberForever("time", function () {
             return time;
         });
 
-        var result = Cache.instance.rememberForever('time', function () {
+        var result = Cache.instance.rememberForever("time", function () {
             return 0;
         });
 
@@ -23,27 +23,27 @@ describe('Common/Cache', function () {
     });
 
 
-    it('should override cache when putting', function () {
+    it("should override cache when putting", function () {
         var time = new Date().getTime();
 
-        Cache.instance.rememberForever('time2', function () {
+        Cache.instance.rememberForever("time2", function () {
             return time;
         });
 
-        Cache.instance.put('time2', 5, 0);
-        var result = Cache.instance.get('time2');
+        Cache.instance.put("time2", 5, 0);
+        var result = Cache.instance.get("time2");
 
         expect(result).to.be(0);
     });
 
 
-    it('should forget cache after a while', function (done) {
+    it("should forget cache after a while", function (done) {
 
-        Cache.instance.put('time3', 1, 0);
+        Cache.instance.put("time3", 1, 0);
 
         setTimeout(function () {
 
-            var result = Cache.instance.get('time3');
+            var result = Cache.instance.get("time3");
 
             expect(result).to.be(null);
 
