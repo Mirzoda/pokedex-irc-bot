@@ -47,12 +47,12 @@ export default class Jokes {
             var sources = [
                 this.getJokeOnelinefun
             ];
-            if (now.getMonth() == 11 && (now.getDate() > 6 && now.getDate() < 30)) {
+            if (now.getMonth() == 3 && now.getDate() < 10) { // Easter
+                sources.push(this.getJokes4usEaster);
+            }
+            if (now.getMonth() == 11 && (now.getDate() > 6 && now.getDate() < 30)) { // Christmas
                 sources.push(this.getChristmasCrackerJoke);
                 sources.push(this.getRDChristmasJoke);
-            }
-            if (now.getMonth() == 3 && now.getDate() < 10) {
-                sources.push(this.getJokes4usEaster);
             }
 
             // Load a joke
