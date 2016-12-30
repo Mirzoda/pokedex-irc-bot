@@ -15,7 +15,8 @@ export default class Jokes {
             callBack = (msg) => {};
 
         // Do logging
-        this.log(from + " requested a joke");
+        if (from !== "mocha" && to !== "#test")
+            this.log(from + " requested a joke");
 
         // Check the joke credits
         var credits = Cache.instance.get(this.cacheCreditSlug) || {};

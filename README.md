@@ -14,3 +14,10 @@ npm install         # Install required packages
 gulp                # Convert the code from ES6 to ES5
 node dist/main.js   # Run Pokedex
 ```
+
+## Testing
+
+Pokedex has several mocha test included to test if the code for a certain command is working.
+When adding a test and if possible, please add a test file in the corresponding folder in the `/test` folder.
+
+Testing can be done simply by running the `mocha` command in terminal.
