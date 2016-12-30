@@ -45,7 +45,8 @@ export default class Jokes {
 
             // Fill an array with sources of jokes
             var sources = [
-                this.getJokeOnelinefun
+                this.getJokeOnelinefun,
+                this.getRDJoke
             ];
             if (now.getMonth() == 1 && now.getDate() == 14) { // Valentine
                 sources.push(this.getJokeOnelinefunValentine);
@@ -54,7 +55,7 @@ export default class Jokes {
                 sources.push(this.getJokes4usEaster);
                 sources.push(this.getJokeOnelinefunEaster);
             }
-            if((now.getMonth() == 9 && now.getDate() > 24) && (now.getMonth() == 10 && now.getDate() < 6)) { // Halloween
+            if((now.getMonth() == 9 && now.getDate() > 24) || (now.getMonth() == 10 && now.getDate() < 6)) { // Halloween
                 sources.push(this.getJokeOnlinefunHalloween);
             }
             if (now.getMonth() == 11 && (now.getDate() > 6 && now.getDate() < 30)) { // Christmas
@@ -91,8 +92,23 @@ export default class Jokes {
 
 
     /**
-     *  getJokeOnelinefun
+     *  The source of all jokes
      */
+    static getChristmasCrackerJoke(callBack) {
+
+        // First, get the page source
+        request("http://www.whychristmas.com/fun/cracker_jokes.shtml", function (error, response, html) {
+
+            // Find the jokes and load a random one
+            let $ = cheerio.load(html);
+            let jokes = $("#content p");
+            let joke = jokes.eq(Math.floor(Math.random() * jokes.length - 3) + 3).text();
+
+            // Send it back
+            callBack(joke);
+        });
+    }
+
     static getJokeOnelinefun(callBack) {
 
         // First, find the number of pages
@@ -117,40 +133,8 @@ export default class Jokes {
 
             });
         });
-    } // End getJokeOnelinefun
-    
-    /**
-     *  getJokeOnlinefun - Valentine
-     */
-    static getJokeOnelinefunValentine(callBack) {
+    }
 
-        // First, find the number of pages
-        request("http://onelinefun.com/valentines/", function (error, response, html) {
-
-            // Parse the html
-            var $ = cheerio.load(html);
-
-            // Find last page number
-            var pnr = $(".pagination a").last().attr("href").replace(/[^\d]/g, '') * 1;
-
-            // Load a random page
-            request("http://onelinefun.com/valentines/" + Math.ceil(Math.random() * pnr) + "/", function (error, response, html) {
-
-                // Find the jokes and load a random one
-                let $ = cheerio.load(html);
-                let jokes = $(".oneliner p");
-                let joke = jokes.eq(Math.floor(Math.random() * jokes.length)).text();
-
-                // Send it back
-                callBack(joke);
-
-            });
-        });
-    } // End getJokeOnelinefunValentine
-    
-    /**
-     *  getJokeOnlinefun - Easter
-     */
     static getJokeOnelinefunEaster(callBack) {
 
         // First, find the number of pages
@@ -175,11 +159,8 @@ export default class Jokes {
 
             });
         });
-    } // End getJokeOnelinefunEaster
+    }
 
-    /**
-     *  getJokeOnlinefun - Halloween
-     */
     static getJokeOnelinefunHalloween(callBack) {
 
         // First, find the number of pages
@@ -204,11 +185,34 @@ export default class Jokes {
 
             });
         });
-    } // End getJokeOnelinefunHalloween
-    
-    /**
-     *    getJokes4usEaster
-     */
+    }
+
+    static getJokeOnelinefunValentine(callBack) {
+
+        // First, find the number of pages
+        request("http://onelinefun.com/valentines/", function (error, response, html) {
+
+            // Parse the html
+            var $ = cheerio.load(html);
+
+            // Find last page number
+            var pnr = $(".pagination a").last().attr("href").replace(/[^\d]/g, '') * 1;
+
+            // Load a random page
+            request("http://onelinefun.com/valentines/" + Math.ceil(Math.random() * pnr) + "/", function (error, response, html) {
+
+                // Find the jokes and load a random one
+                let $ = cheerio.load(html);
+                let jokes = $(".oneliner p");
+                let joke = jokes.eq(Math.floor(Math.random() * jokes.length)).text();
+
+                // Send it back
+                callBack(joke);
+
+            });
+        });
+    }
+
     static getJokes4usEaster(callBack) {
 
         // First, get the page source
@@ -222,7 +226,7 @@ export default class Jokes {
             // Send it back
             callBack(_.sample(jokes).replace("<br>", "\n"));
         });
-    } // End getJokes4usEaster
+    }
 
     static getRDChristmasJoke(callBack) {
 
@@ -237,23 +241,20 @@ export default class Jokes {
             // Send it back
             callBack(joke);
         });
-    } // End getRDChristmasJoke
-    
-    /**
-     *  getChristmasCrackerJoke
-     */
-    static getChristmasCrackerJoke(callBack) {
+    }
+
+    static getRDJoke(callBack) {
 
         // First, get the page source
-        request("http://www.whychristmas.com/fun/cracker_jokes.shtml", function (error, response, html) {
+        request("http://www.rd.com/jokes/one-liners/", function (error, response, html) {
 
             // Find the jokes and load a random one
-            let $ = cheerio.load(html);
-            let jokes = $("#content p");
-            let joke = jokes.eq(Math.floor(Math.random() * jokes.length - 3) + 3).text();
+            var $ = cheerio.load(html);
+            var jokes = $(".jokes-river--content p:first-of-type");
+            var joke = jokes.eq(Math.floor(Math.random() * jokes.length)).text();
 
             // Send it back
             callBack(joke);
         });
-    } // End getChristmasCrackerJoke
+    }
 }
