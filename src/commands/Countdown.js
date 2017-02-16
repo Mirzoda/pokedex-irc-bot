@@ -21,9 +21,14 @@ export default class Countdown {
 				    return;
 				}
 
+				// Custom countdown?
+				var custom = command.replace(/^!countdown\s+/, '');
+
 				// Parse json data and find the correct event
 				data = JSON.parse(data);
-				if (data.hasOwnProperty(to)) {
+				if (data.hasOwnProperty(custom)) {
+					data = data[custom];
+				} else if (data.hasOwnProperty(to)) {
 					data = data[to];
 				} else if (data.hasOwnProperty("default")) {
 					data = data["default"];
