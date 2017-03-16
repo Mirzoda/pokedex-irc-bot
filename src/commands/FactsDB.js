@@ -98,10 +98,12 @@ export default class FactsDB {
 	        		return;
 	        	}
 
+				// List users
 				var users = fact.users.join(', ');
 				users = users.replace(/, ([^,]+)$/, " and $1");
 
 				callBack("I learned !" + key + " from " + users + ".");
+				callBack("It has been used " + fact.uses + " times.");
 			});
 		}
 		else if ((matches = command.match(new RegExp("^" + Config.irc.botname + ": !([\\w\\d-]+)(\\[(del)?\\])?( (.{2,}))?$"))) && matches !== null)
