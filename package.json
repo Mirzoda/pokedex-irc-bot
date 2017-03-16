@@ -14,11 +14,11 @@
     "url": "git+https://github.com/jerodev/pokedex-irc-bot.git"
   },
   "dependencies": {
-    "cheerio": "^0.20.0",
-    "irc": "^0.5.0",
-    "mysql": "^2.11.1",
+    "cheerio": "^0.22.0",
+    "irc": "^0.5.2",
+    "mysql": "^2.13.0",
     "pastebin-js": "^0.4.0",
-    "request": "^2.72.0",
+    "request": "^2.81.0",
     "rio2016": "^1.0.7",
     "underscore": "^1.8.3",
     "underscore.string": "^3.3.4",
