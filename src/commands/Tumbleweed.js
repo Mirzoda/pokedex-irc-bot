@@ -12,7 +12,7 @@ export default class Users {
     static catchAll(from, to, message, raw) {
 
         // Only between working hours
-        if (moment().hour() > 7 && moment.hour() < 17)
+        if (moment().format("k") > 7 && moment().format("k") < 17)
         {
             // Clear any previous timeout
             if (this.timers[to])
