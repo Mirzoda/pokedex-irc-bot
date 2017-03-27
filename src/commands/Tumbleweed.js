@@ -6,24 +6,30 @@ const moment = require('moment');
 /**
  * When no messages have been said for a certain period of time, introduce the tumbleweed user
  */
-export default class Users {
+export default class Tumbleweed {
     static timers = {};
 
     static catchAll(from, to, message, raw) {
 
-        // Only between working hours
-        if (moment().format("k") > 7 && moment().format("k") < 17)
-        {
-            // Clear any previous timeout
-            if (this.timers[to])
-                clearTimeout(this.timers[to]);
+	// Not in weekends
+	if (+moment().day() < 6)
+	{
 
-            // Wait 25 minutes before tumbleweed joins
-            this.timers[to] = setTimeout(function () {
-                this.introduceTumbleweed(to);
-            }, 1000 * 60 * 25);
+            // Only between working hours
+            if (+moment().format("k") > 7 && +moment().format("k") < 17)
+            {
+                // Clear any previous timeout
+                if (Tumbleweed.timers[to])
+                    clearTimeout(Tumbleweed.timers[to]);
 
-        }
+                // Wait 25 minutes before tumbleweed joins
+                Tumbleweed.timers[to] = setTimeout(function () {
+                    Tumbleweed.introduceTumbleweed(to);
+                }, 1000 * 60 * (30 + (Math.random() * 30)));
+
+            }
+
+	}
     }
 
     /**
@@ -32,12 +38,12 @@ export default class Users {
     static introduceTumbleweed(channel) {
 
         // Create irc connection
-		var client = new irc.Client(Config.irc.server, Config.irc.botname, {
+		var client = new irc.Client(Config.irc.server, "Tumbleweed", {
     	    channels: [channel],
 	    	autoConnect: false,
 	    	autoRejoin: false,
 	    	retryCount: 10,
-	    	userName: "Tumbleweed"
+	    	userName: "Desert"
         });
 
         // Connect to irc
