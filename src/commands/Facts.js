@@ -80,10 +80,10 @@ export default class Facts {
 			    .then(function (data) {
 
 			    	// Keep the link in cache for one hour
-			    	Cache.instance.put("pastebin_facts", 59, "These are all the facts: http://pastebin.com/" + data);
+			    	Cache.instance.put("pastebin_facts", 59, "These are all the facts: " + data);
 
 					// Send the data back
-			    	callBack("These are all the facts: http://pastebin.com/" + data);
+			    	callBack("These are all the facts: " + data);
 			    });
 			});
 		}
