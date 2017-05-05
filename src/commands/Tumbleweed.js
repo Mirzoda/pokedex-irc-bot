@@ -49,6 +49,8 @@ export default class Tumbleweed {
         // Connect to irc
         client.connect();
 
+	client.say(channel, "Whoosh!!");
+		   	
         // Disconnect from irc
         setTimeout(function () {
             client.disconnect("... Tumbleweed floats away ...");
