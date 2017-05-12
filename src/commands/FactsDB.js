@@ -144,7 +144,13 @@ export default class FactsDB {
 
 					// Remove existing facts if not an array
 					if (fact.exists && !fact.is_array) {
-						conn.query('DELETE FROM facts WHERE `key` = ?', [newfact.key]);
+						//conn.query('DELETE FROM facts WHERE `key` = ?', [newfact.key]);
+							
+						// Make array of the old fact so it isn't deleted.
+						conn.query('UPDATE facts SET ?', {
+							key: fact.key,
+							is_array: true
+						);						
 					}
 
 					// Insert the new fact
