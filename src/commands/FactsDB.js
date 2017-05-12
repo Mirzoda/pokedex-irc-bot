@@ -150,7 +150,7 @@ export default class FactsDB {
 						conn.query('UPDATE facts SET ?', {
 							key: fact.key,
 							is_array: true
-						);						
+						});						
 					}
 
 					// Insert the new fact
